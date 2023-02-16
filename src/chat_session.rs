@@ -5,10 +5,11 @@ use std::{
 
 use crate::error::OmegleLibError;
 use crate::status::OmegleStatus;
-use futures::{future, Future, Stream, StreamExt};
+use futures::{Future, Stream};
 use reqwest::Client;
 use vec1::Vec1;
 
+// TODO: Figure out how to reuse this effectively
 pub struct ChatSession<'a> {
     is_connected: bool,
     client: Client,
@@ -32,7 +33,7 @@ pub enum Event {
     StartedTyping,
     StoppedTyping,
     Message,
-    DIsconnected,
+    Disconnected,
 }
 
 impl<'a> ChatSession<'a> {
@@ -70,6 +71,9 @@ impl ChatSession<'_> {
     }
 }
 
+// TODO: Not sure if this should handle error or be able to go on past None,
+// No semantics for Stream documented like for iter, allowing the iteration
+// to continue after passing None
 impl Stream for ChatSession<'_> {
     type Item = Result<Vec1<Event>, OmegleLibError>;
 
