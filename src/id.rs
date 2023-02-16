@@ -2,20 +2,51 @@ use crate::error::OmegleLibError;
 use rand::distributions::Distribution;
 use rand::Rng;
 
+/// Omegle's Random ID used internally by Omegle to assign you with
+/// (relatively) new chatters each time. Meant to be used througout
+/// the chat session to ensure behavior consisten to that of the website.
+/// Can be manually overridden as long as it follows convention.
+///
+/// # Convention
+/// The Random ID is a 8 letter string that contains chars A-Z and 1-9
+/// **with the exception of** 'O', 'I', '1', and '0'
+///
+/// # Examples
+/// Generate new random ID that is guarenteed to follow convention:
+/// ```rust
+/// use omegle_rs::id::RandID;
+/// let rand_id = RandID::new();
+/// ```
+/// ---
+/// Generate manual ID:
+/// ```rust
+/// use omegle_rs::id::RandID;
+/// let id = "ABCDEFGH";
+/// let rand_id = RandID::try_from(id).expect("Follows convention");
+/// ```
+#[derive(Clone, Copy)]
 pub struct RandID {
-    id: String,
+    // Better than storing in string since we know it must be 8 chars
+    id: [char; 8],
 }
 
 impl TryFrom<String> for RandID {
     type Error = OmegleLibError;
-
+    /// Tries to create a new [`RandID`]
+    /// # Errors:
+    /// Returns [Err] if it doesnt follow the convention
     fn try_from(value: String) -> Result<Self, Self::Error> {
         if value.len() == 8
             && value
                 .chars()
                 .all(|char| (char != '1' && char != '0' && char != 'I' && char != 'O'))
         {
-            Ok(Self { id: value })
+            let mut id: [char; 8] = Default::default();
+            for element in value.char_indices() {
+                let (idx, chr) = element;
+                id[idx] = chr;
+            }
+            Ok(Self { id })
         } else {
             Err(OmegleLibError::InvalidID)
         }
@@ -24,16 +55,21 @@ impl TryFrom<String> for RandID {
 
 impl TryFrom<&String> for RandID {
     type Error = OmegleLibError;
-
+    /// Tries to create a new [`RandID`]
+    /// # Errors:
+    /// Returns [Err] if it doesnt follow the convention
     fn try_from(value: &String) -> Result<Self, Self::Error> {
         if value.len() == 8
             && value
                 .chars()
                 .all(|char| (char != '1' && char != '0' && char != 'I' && char != 'O'))
         {
-            Ok(Self {
-                id: String::from(value),
-            })
+            let mut id: [char; 8] = Default::default();
+            for element in value.char_indices() {
+                let (idx, chr) = element;
+                id[idx] = chr;
+            }
+            Ok(Self { id })
         } else {
             Err(OmegleLibError::InvalidID)
         }
@@ -42,16 +78,21 @@ impl TryFrom<&String> for RandID {
 
 impl TryFrom<&str> for RandID {
     type Error = OmegleLibError;
-
+    /// Tries to create a new [`RandID`]
+    /// # Errors:
+    /// Returns [Err] if it doesnt follow the convention
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         if value.len() == 8
             && value
                 .chars()
                 .all(|char| (char != '1' && char != '0' && char != 'I' && char != 'O'))
         {
-            Ok(Self {
-                id: String::from(value),
-            })
+            let mut id: [char; 8] = Default::default();
+            for element in value.char_indices() {
+                let (idx, chr) = element;
+                id[idx] = chr;
+            }
+            Ok(Self { id })
         } else {
             Err(OmegleLibError::InvalidID)
         }
@@ -59,18 +100,32 @@ impl TryFrom<&str> for RandID {
 }
 
 impl Into<String> for RandID {
+    /// Performs the conversion of [`RandID`] into a [String].
+    /// Optimized to allocate all 8 bytes right away.
     fn into(self) -> String {
-        self.id
+        //Avoid allocations
+        let mut string = String::with_capacity(8);
+
+        for elem in self.id {
+            string.push(elem);
+        }
+        string
     }
 }
 
 impl RandID {
+    /// Creates a new [`RandID`] randomly using the convention
     pub fn new() -> Self {
-        let id: String = rand::thread_rng()
-            .sample_iter(OmegleCharset)
-            .take(8)
-            .map(char::from)
-            .collect();
+        let mut id: [char; 8] = Default::default();
+        for element in (0..8 as usize).zip(
+            rand::thread_rng()
+                .sample_iter(OmegleCharset)
+                .take(8)
+                .map(char::from),
+        ) {
+            let (idx, chr) = element;
+            id[idx] = chr;
+        }
         Self { id }
     }
 }
