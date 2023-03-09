@@ -1,5 +1,5 @@
 use std::{
-    pin::Pin,
+    pin::{pin, Pin},
     task::{Context, Poll},
 };
 
@@ -82,7 +82,7 @@ impl Stream for ChatSession<'_> {
             Poll::Ready(None)
         } else {
             let future = self.get_events();
-            let mut task = Box::pin(future);
+            let mut task = pin!(future);
             match task.as_mut().poll(cx) {
                 Poll::Ready(value) => todo!(),
                 Poll::Pending => Poll::Pending,
