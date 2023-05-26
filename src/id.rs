@@ -1,6 +1,7 @@
 use crate::error::OmegleLibError;
 use rand::distributions::Distribution;
 use rand::Rng;
+use serde::{Deserialize, Serialize};
 
 /// Omegle's Random ID used internally by Omegle to assign you with
 /// (relatively) new chatters each time. Meant to be used througout
@@ -24,7 +25,7 @@ use rand::Rng;
 /// let id = "ABCDEFGH";
 /// let rand_id = RandID::try_from(id).expect("Follows convention");
 /// ```
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug)]
 pub struct RandID {
     // Better than storing in string since we know it must be 8 chars
     id: [char; 8],

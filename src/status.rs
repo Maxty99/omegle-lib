@@ -1,12 +1,41 @@
 use crate::error::OmegleLibError;
 use crate::id::RandID;
-use json::JsonValue;
+use crate::server::Server;
+use serde::{Deserialize, Serialize};
 use vec1::Vec1;
 
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(try_from = "OmegleResponse")]
 pub struct OmegleStatus {
     count: u64,
-    servers: Vec1<String>,
+    servers: Vec1<Server>,
     rand_id: RandID,
+}
+
+impl TryFrom<OmegleResponse> for OmegleStatus {
+    type Error = OmegleLibError;
+
+    fn try_from(value: OmegleResponse) -> Result<Self, OmegleLibError> {
+        let count = value.count;
+        let server_strings = value.servers;
+        let rand_id = RandID::new();
+
+        let servers: Vec1<Server> = server_strings
+            .try_mapped(Server::get_id_from_server_string)?
+            .mapped(|elem| elem.into());
+
+        Ok(OmegleStatus {
+            count,
+            servers,
+            rand_id,
+        })
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct OmegleResponse {
+    count: u64,
+    servers: Vec1<String>,
 }
 
 impl OmegleStatus {
@@ -14,8 +43,8 @@ impl OmegleStatus {
         self.count
     }
 
-    pub fn get_server(&self) -> &str {
-        self.servers.first()
+    pub fn get_server(&self) -> String {
+        self.servers.first().into()
     }
 
     fn get_rand_id(&self) -> &RandID {
@@ -30,7 +59,7 @@ impl OmegleStatus {
     /// ```rust
     /// use omegle_rs::status::OmegleStatus;
     /// async fn run() {
-    ///     let server_status = OmegleStatus::get_server_status().await.unwrap();
+    ///     let server_status = OmegleStatus::get_omegle_status().await.unwrap();
     ///     println!("There are {} users currently active", server_status.get_count())
     /// }
     ///```
@@ -40,7 +69,7 @@ impl OmegleStatus {
     /// - The omegle server cannot be reached
     /// - The response contained no text
     /// - The response was unexpected (Ex: Error on omegle's end)
-    pub async fn get_server_status() -> Result<OmegleStatus, OmegleLibError> {
+    pub async fn get_omegle_status() -> Result<OmegleStatus, OmegleLibError> {
         let req = reqwest::get("https://omegle.com/status")
             .await
             .map_err(|_| OmegleLibError::ConnectionError)?;
@@ -48,38 +77,9 @@ impl OmegleStatus {
             .text()
             .await
             .map_err(|_| OmegleLibError::CouldNotDetermineResponse)?;
-        deserialize_response(resp)
-    }
-}
-
-fn deserialize_response(resp: String) -> Result<OmegleStatus, OmegleLibError> {
-    // Parse JSON
-    let parsed = json::parse(&resp).map_err(|_| OmegleLibError::UnexpectedRespone(resp.clone()))?;
-    let count_json = &parsed["count"];
-    let servers_json = &parsed["servers"];
-
-    // Eliminate all bad responses with very specific match
-    match (count_json, servers_json) {
-        (JsonValue::Number(number), JsonValue::Array(servers_vec))
-            if number.is_sign_positive() //Need this for as_fixed_point
-                && !servers_vec.is_empty() //Need this for vec1
-                && servers_vec.iter().all(|elem| elem.is_string()) =>
-        {
-            let count = number.as_fixed_point_u64(0).expect("Number is positive");
-            let servers: Vec1<String> = servers_vec
-                .iter()
-                .map(|elem| String::from(elem.as_str().expect("All elems are strings")))
-                .collect::<Vec<String>>()
-                .try_into()
-                .map_err(|_| OmegleLibError::NoServers)?;
-            let rand_id = RandID::new();
-            Ok(OmegleStatus {
-                count,
-                servers,
-                rand_id,
-            })
-        }
-        _ => Err(OmegleLibError::UnexpectedRespone(resp)),
+        let omegle_status: OmegleStatus =
+            serde_json::from_str(&resp).map_err(OmegleLibError::DeserializationError)?;
+        Ok(omegle_status)
     }
 }
 
@@ -102,11 +102,9 @@ mod tests {
         "antinudepercent": 1,
         "spyeeQueueTime": 255.67500002384185,
         "timestamp": 1675392220.026273,
-        "servers": [
-        "front20",
-        "front5"]}"#;
-        let status = deserialize_response(resp_text.to_string());
-        assert!(status.is_ok())
+        "servers": ["front20", "front5"]}"#;
+        let resp = serde_json::from_str::<OmegleResponse>(&resp_text);
+        assert!(resp.is_ok())
     }
 
     #[test]
@@ -125,14 +123,14 @@ mod tests {
         "spyeeQueueTime": 255.67500002384185,
         "timestamp": 1675392220.026273,
         "servers": []}"#;
-        let status = deserialize_response(resp_text.to_string());
-        assert!(status.is_err())
+        let resp = serde_json::from_str::<OmegleResponse>(&resp_text);
+        assert!(resp.is_err())
     }
 
     #[test]
     fn invalid_response_text_should_error() {
         let resp_text = "bad request";
-        let status = deserialize_response(resp_text.to_string());
-        assert!(status.is_err())
+        let resp = serde_json::from_str::<OmegleResponse>(&resp_text);
+        assert!(resp.is_err())
     }
 }
