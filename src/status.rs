@@ -103,7 +103,7 @@ mod tests {
         "spyeeQueueTime": 255.67500002384185,
         "timestamp": 1675392220.026273,
         "servers": ["front20", "front5"]}"#;
-        let resp = serde_json::from_str::<OmegleResponse>(&resp_text);
+        let resp = serde_json::from_str::<OmegleStatus>(&resp_text);
         assert!(resp.is_ok())
     }
 
@@ -123,14 +123,14 @@ mod tests {
         "spyeeQueueTime": 255.67500002384185,
         "timestamp": 1675392220.026273,
         "servers": []}"#;
-        let resp = serde_json::from_str::<OmegleResponse>(&resp_text);
+        let resp = serde_json::from_str::<OmegleStatus>(&resp_text);
         assert!(resp.is_err())
     }
 
     #[test]
     fn invalid_response_text_should_error() {
         let resp_text = "bad request";
-        let resp = serde_json::from_str::<OmegleResponse>(&resp_text);
+        let resp = serde_json::from_str::<OmegleStatus>(&resp_text);
         assert!(resp.is_err())
     }
 }
