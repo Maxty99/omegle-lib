@@ -3,8 +3,8 @@ use std::{
     task::{Context, Poll},
 };
 
-use crate::error::OmegleLibError;
 use crate::status::OmegleStatus;
+use crate::{chat_event::ChatEvent, error::OmegleLibError};
 use futures::{Future, Stream};
 use reqwest::Client;
 use vec1::Vec1;
@@ -14,26 +14,6 @@ pub struct ChatSession<'a> {
     is_connected: bool,
     client: Client,
     status: &'a OmegleStatus,
-}
-
-pub enum Event {
-    // Status Events
-    Waiting,
-    Connected,
-    StatusInfo(String),
-
-    // Notifications
-    CommonLikes(Vec<String>),
-
-    // Errors
-    Error(String),
-    ConnectionDied,
-
-    // Chat events
-    StartedTyping,
-    StoppedTyping,
-    Message,
-    Disconnected,
 }
 
 impl<'a> ChatSession<'a> {
@@ -63,7 +43,7 @@ impl ChatSession<'_> {
     pub async fn stop_typing(&self) -> Result<(), OmegleLibError> {
         todo!()
     }
-    async fn get_events(&self) -> Result<Vec1<Event>, OmegleLibError> {
+    async fn get_events(&self) -> Result<Vec1<ChatEvent>, OmegleLibError> {
         todo!()
     }
     pub async fn disconnect(&self) {
@@ -75,7 +55,7 @@ impl ChatSession<'_> {
 // No semantics for Stream documented like for iter, allowing the iteration
 // to continue after passing None
 impl Stream for ChatSession<'_> {
-    type Item = Result<Vec1<Event>, OmegleLibError>;
+    type Item = Result<Vec1<ChatEvent>, OmegleLibError>;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         if !self.is_connected {
