@@ -41,6 +41,3 @@ impl Server {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {}
