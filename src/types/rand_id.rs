@@ -1,7 +1,7 @@
-use crate::error::OmegleLibError;
+use crate::types::error::OmegleLibError;
 use rand::distributions::Distribution;
 use rand::Rng;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Serializer};
 
 /// Omegle's Random ID used internally by Omegle to assign you with
 /// (relatively) new chatters each time. Meant to be used througout
@@ -15,17 +15,17 @@ use serde::{Deserialize, Serialize};
 /// # Examples
 /// Generate new random ID that is guarenteed to follow convention:
 /// ```rust
-/// use omegle_rs::id::RandID;
+/// use omegle_rs::rand_id::RandID;
 /// let rand_id = RandID::new();
 /// ```
 /// ---
 /// Generate manual ID:
 /// ```rust
-/// use omegle_rs::id::RandID;
+/// use omegle_rs::rand_id::RandID;
 /// let id = "ABCDEFGH";
 /// let rand_id = RandID::try_from(id).expect("Follows convention");
 /// ```
-#[derive(Clone, Copy, Serialize, Deserialize, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct RandID {
     // Better than storing in string since we know it must be 8 chars
     id: [char; 8],
@@ -111,6 +111,30 @@ impl Into<String> for RandID {
             string.push(elem);
         }
         string
+    }
+}
+
+impl Into<String> for &RandID {
+    /// Performs the conversion of [`RandID`] into a [String].
+    /// Optimized to allocate all 8 bytes right away.
+    fn into(self) -> String {
+        //Avoid allocations
+        let mut string = String::with_capacity(8);
+
+        for elem in self.id {
+            string.push(elem);
+        }
+        string
+    }
+}
+
+impl Serialize for RandID {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let randid_string: String = self.into();
+        serializer.serialize_str(&randid_string)
     }
 }
 

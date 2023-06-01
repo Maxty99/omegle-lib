@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::status::OmegleStatus;
-use crate::{chat_event::ChatEvent, error::OmegleLibError};
+use crate::types::{chat_event::ChatEvent, error::OmegleLibError};
 use futures::{Future, Stream};
 use reqwest::Client;
 use vec1::Vec1;

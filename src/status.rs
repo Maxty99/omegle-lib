@@ -1,41 +1,19 @@
-use crate::error::OmegleLibError;
-use crate::id::RandID;
-use crate::server::Server;
-use serde::{Deserialize, Serialize};
+use crate::types::error::OmegleLibError;
+use crate::types::rand_id::RandID;
+use crate::types::server::Server;
+use serde::Deserialize;
 use vec1::Vec1;
 
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(try_from = "OmegleResponse")]
+#[derive(Deserialize, Debug)]
 pub struct OmegleStatus {
     count: u64,
     servers: Vec1<Server>,
+    #[serde(skip)]
+    #[serde(default = "new_randid")]
     rand_id: RandID,
 }
-
-impl TryFrom<OmegleResponse> for OmegleStatus {
-    type Error = OmegleLibError;
-
-    fn try_from(value: OmegleResponse) -> Result<Self, OmegleLibError> {
-        let count = value.count;
-        let server_strings = value.servers;
-        let rand_id = RandID::new();
-
-        let servers: Vec1<Server> = server_strings
-            .try_mapped(Server::get_id_from_server_string)?
-            .mapped(|elem| elem.into());
-
-        Ok(OmegleStatus {
-            count,
-            servers,
-            rand_id,
-        })
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct OmegleResponse {
-    count: u64,
-    servers: Vec1<String>,
+fn new_randid() -> RandID {
+    RandID::new()
 }
 
 impl OmegleStatus {
@@ -104,6 +82,7 @@ mod tests {
         "timestamp": 1675392220.026273,
         "servers": ["front20", "front5"]}"#;
         let resp = serde_json::from_str::<OmegleStatus>(&resp_text);
+
         assert!(resp.is_ok())
     }
 

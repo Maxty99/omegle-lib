@@ -48,7 +48,7 @@ impl<'de> Visitor<'de> for ChatEventVisitor {
     type Value = ChatEvent;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        write!(formatter, "a map with keys 'first' and 'second'")
+        write!(formatter, "A list with a chat event")
     }
 
     fn visit_seq<M>(self, mut seq: M) -> Result<Self::Value, M::Error>
@@ -64,38 +64,38 @@ impl<'de> Visitor<'de> for ChatEventVisitor {
             "connected" => ChatEvent::Connected,
             "statusInfo" => {
                 let status = seq.next_element::<OmegleStatus>()?.ok_or(Error::custom(
-                    "Expected status info to be followed by status object",
+                    "expected status info to be followed by status object",
                 ))?;
                 ChatEvent::StatusInfo(status)
             }
             "count" => {
                 let count = seq
                     .next_element::<u64>()?
-                    .ok_or(Error::custom("Expected count to be followed by a number"))?;
+                    .ok_or(Error::custom("expected count to be followed by a number"))?;
                 ChatEvent::Count(count)
             }
             "commonLikes" => {
                 let likes = seq.next_element::<Vec1<String>>()?.ok_or(Error::custom(
-                    "Expected commonLikes to be followed by a non-empty list of strings",
+                    "expected commonLikes to be followed by a non-empty list of strings",
                 ))?;
                 ChatEvent::CommonLikes(likes)
             }
             "serverMessage" => {
                 let server_msg = seq.next_element::<String>()?.ok_or(Error::custom(
-                    "Expected serverMessage to be followed by a string",
+                    "expected serverMessage to be followed by a string",
                 ))?;
                 ChatEvent::ServerMessage(server_msg)
             }
             "identDigests" => {
                 let digests = seq.next_element::<String>()?.ok_or(Error::custom(
-                    "Expected identDigests to be followed by a string",
+                    "expected identDigests to be followed by a string",
                 ))?;
                 ChatEvent::IdentDigests(digests)
             }
             "error" => {
                 let error_msg = seq
                     .next_element::<String>()?
-                    .ok_or(Error::custom("Expected error to be followed by a string"))?;
+                    .ok_or(Error::custom("expected error to be followed by a string"))?;
                 ChatEvent::Error(error_msg)
             }
             "connectionDied" => ChatEvent::ConnectionDied,
@@ -104,7 +104,7 @@ impl<'de> Visitor<'de> for ChatEventVisitor {
             "stoppedTyping" => ChatEvent::StoppedTyping,
             "gotMessage" => {
                 let msg = seq.next_element::<String>()?.ok_or(Error::custom(
-                    "Expected gotMessage to be followed by a string",
+                    "expected gotMessage to be followed by a string",
                 ))?;
                 ChatEvent::Message(msg)
             }

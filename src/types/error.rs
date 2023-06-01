@@ -6,7 +6,6 @@ pub enum OmegleLibError {
     CouldNotDetermineResponse,
     DeserializationError(serde_json::Error),
     InvalidID,
-    InvalidServerString,
 }
 
 impl Display for OmegleLibError {
@@ -20,7 +19,6 @@ impl Display for OmegleLibError {
             OmegleLibError::InvalidID => {
                 write!(f, "invalid id: must not contain 'I', 'O', '1', '0'")
             }
-            OmegleLibError::InvalidServerString => write!(f, "the given server string was invalid"),
             OmegleLibError::DeserializationError(err) => {
                 write!(f, "error deserializing response from omegle: {err}")
             }
