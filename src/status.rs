@@ -4,7 +4,7 @@ use crate::types::server::Server;
 use serde::Deserialize;
 use vec1::Vec1;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq)]
 pub struct OmegleStatus {
     count: u64,
     servers: Vec1<Server>,
@@ -12,6 +12,13 @@ pub struct OmegleStatus {
     #[serde(default = "new_randid")]
     rand_id: RandID,
 }
+
+#[derive(Deserialize, Debug, PartialEq)]
+pub struct OmegleStatusUpdate {
+    pub(crate) count: u64,
+    pub(crate) servers: Vec1<Server>,
+}
+
 fn new_randid() -> RandID {
     RandID::new()
 }

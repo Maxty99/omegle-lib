@@ -15,17 +15,17 @@ use serde::{Serialize, Serializer};
 /// # Examples
 /// Generate new random ID that is guarenteed to follow convention:
 /// ```rust
-/// use omegle_rs::rand_id::RandID;
+/// use omegle_rs::types::rand_id::RandID;
 /// let rand_id = RandID::new();
 /// ```
 /// ---
 /// Generate manual ID:
 /// ```rust
-/// use omegle_rs::rand_id::RandID;
+/// use omegle_rs::types::rand_id::RandID;
 /// let id = "ABCDEFGH";
 /// let rand_id = RandID::try_from(id).expect("Follows convention");
 /// ```
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct RandID {
     // Better than storing in string since we know it must be 8 chars
     id: [char; 8],
@@ -174,6 +174,8 @@ impl Distribution<u8> for OmegleCharset {
 
 #[cfg(test)]
 mod tests {
+    use serde_test::{Token, assert_ser_tokens};
+
     use super::*;
 
     #[test]
@@ -210,5 +212,11 @@ mod tests {
         let id_string: String = id_rand.into();
         let id = RandID::try_from(id_string);
         assert!(id.is_ok())
+    }
+
+    #[test]
+    fn serializes_to_valid_id() {
+        let rand_id = RandID::try_from("ABCDEFGH").expect("Is valid id");
+        assert_ser_tokens(&rand_id, &[Token::Str("ABCDEFGH")])
     }
 }
