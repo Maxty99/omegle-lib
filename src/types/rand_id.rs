@@ -100,28 +100,28 @@ impl TryFrom<&str> for RandID {
     }
 }
 
-impl Into<String> for RandID {
+impl From<RandID> for String {
     /// Performs the conversion of [`RandID`] into a [String].
     /// Optimized to allocate all 8 bytes right away.
-    fn into(self) -> String {
+    fn from(val: RandID) -> Self {
         //Avoid allocations
         let mut string = String::with_capacity(8);
 
-        for elem in self.id {
+        for elem in val.id {
             string.push(elem);
         }
         string
     }
 }
 
-impl Into<String> for &RandID {
+impl From<&RandID> for String {
     /// Performs the conversion of [`RandID`] into a [String].
     /// Optimized to allocate all 8 bytes right away.
-    fn into(self) -> String {
+    fn from(val: &RandID) -> Self {
         //Avoid allocations
         let mut string = String::with_capacity(8);
 
-        for elem in self.id {
+        for elem in val.id {
             string.push(elem);
         }
         string

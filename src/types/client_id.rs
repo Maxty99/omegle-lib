@@ -39,29 +39,29 @@ pub struct ClientID {
     pub(crate) user_id: [char; 30],
 }
 
-impl Into<String> for ClientID {
-    fn into(self) -> String {
+impl From<ClientID> for String {
+    fn from(val: ClientID) -> Self {
         //Avoid allocations
         let mut user_id_string = String::with_capacity(30);
-        let server_type_string = String::from(self.server_type);
-        for elem in self.user_id {
+        let server_type_string = String::from(val.server_type);
+        for elem in val.user_id {
             user_id_string.push(elem);
         }
 
-        format!("{}{}:{}", server_type_string, self.server_id, user_id_string)
+        format!("{}{}:{}", server_type_string, val.server_id, user_id_string)
     }
 }
 
-impl Into<String> for &ClientID {
-    fn into(self) -> String {
+impl From<&ClientID> for String {
+    fn from(val: &ClientID) -> Self {
         //Avoid allocations
         let mut user_id_string = String::with_capacity(30);
-        let server_type_string = String::from(self.server_type);
-        for elem in self.user_id {
+        let server_type_string = String::from(val.server_type);
+        for elem in val.user_id {
             user_id_string.push(elem);
         }
 
-        format!("{}{}:{}", server_type_string, self.server_id, user_id_string)
+        format!("{}{}:{}", server_type_string, val.server_id, user_id_string)
     }
 }
 

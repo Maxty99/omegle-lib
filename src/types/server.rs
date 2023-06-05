@@ -19,15 +19,15 @@ impl From<u8> for Server {
     }
 }
 
-impl Into<String> for Server {
-    fn into(self) -> String {
-        format!("front{}", self.id_number)
+impl From<Server> for String {
+    fn from(val: Server) -> Self {
+        format!("front{}", val.id_number)
     }
 }
 
-impl Into<String> for &Server {
-    fn into(self) -> String {
-        format!("front{}", self.id_number)
+impl From<&Server> for String {
+    fn from(val: &Server) -> Self {
+        format!("front{}", val.id_number)
     }
 }
 
