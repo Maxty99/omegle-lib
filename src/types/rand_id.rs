@@ -174,7 +174,7 @@ impl Distribution<u8> for OmegleCharset {
 
 #[cfg(test)]
 mod tests {
-    use serde_test::{Token, assert_ser_tokens};
+    use serde_test::{assert_ser_tokens, Token};
 
     use super::*;
 

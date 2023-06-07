@@ -66,10 +66,13 @@ impl<'de> Visitor<'de> for ServerVisitor {
         E: Error,
     {
         if str.starts_with("front") {
-            if str.get(5..).is_some_and(|val| {!val.is_empty()}) {
+            if str.get(5..).is_some_and(|val| !val.is_empty()) {
                 let id_number_as_str = str.get(5..).expect("str was checked to be Some");
-                let id_number: u8 = id_number_as_str.parse()
-                    .map_err(|_| {E::custom("expected server string that starts with 'front' to be followed by a u8")})?;
+                let id_number: u8 = id_number_as_str.parse().map_err(|_| {
+                    E::custom(
+                        "expected server string that starts with 'front' to be followed by a u8",
+                    )
+                })?;
                 Ok(Server { id_number })
             } else {
                 Err(E::custom("expected server string that starts with 'front' to be followed by at least one char"))
@@ -82,39 +85,37 @@ impl<'de> Visitor<'de> for ServerVisitor {
 
 #[cfg(test)]
 mod tests {
-    use serde_test::{assert_tokens, Token, assert_de_tokens_error};
+    use serde_test::{assert_de_tokens_error, assert_tokens, Token};
 
     use super::*;
 
     #[test]
     fn can_deserialize_and_serialize_valid_string() {
         let server = Server { id_number: 15 };
-        assert_tokens(&server, &[
-            Token::Str("front15")
-        ])
+        assert_tokens(&server, &[Token::Str("front15")])
     }
 
     #[test]
     fn can_not_deserialize_string_with_invalid_start() {
-        assert_de_tokens_error::<Server>(&[
-            Token::Str("fromt15")
-        ],
-        "expected server string to start with 'front'")
+        assert_de_tokens_error::<Server>(
+            &[Token::Str("fromt15")],
+            "expected server string to start with 'front'",
+        )
     }
 
     #[test]
     fn can_not_deserialize_string_with_no_id() {
-        assert_de_tokens_error::<Server>(&[
-            Token::Str("front")
-        ],
-        "expected server string that starts with 'front' to be followed by at least one char")
+        assert_de_tokens_error::<Server>(
+            &[Token::Str("front")],
+            "expected server string that starts with 'front' to be followed by at least one char",
+        )
     }
-    
+
     #[test]
     fn can_not_deserialize_string_with_invalid_id() {
-        assert_de_tokens_error::<Server>(&[
-            Token::Str("front155555")
-        ],
-        "expected server string that starts with 'front' to be followed by a u8")
+        assert_de_tokens_error::<Server>(
+            &[Token::Str("front155555")],
+            "expected server string that starts with 'front' to be followed by a u8",
+        )
     }
 }

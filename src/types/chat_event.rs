@@ -64,9 +64,11 @@ impl<'de> Visitor<'de> for ChatEventVisitor {
             "waiting" => ChatEvent::Waiting,
             "connected" => ChatEvent::Connected,
             "statusInfo" => {
-                let status = seq.next_element::<OmegleStatusUpdate>()?.ok_or(Error::custom(
-                    "expected status info to be followed by status object",
-                ))?;
+                let status = seq
+                    .next_element::<OmegleStatusUpdate>()?
+                    .ok_or(Error::custom(
+                        "expected status info to be followed by status object",
+                    ))?;
                 ChatEvent::StatusInfo(status)
             }
             "count" => {
@@ -137,7 +139,7 @@ impl<'de> Visitor<'de> for ChatEventVisitor {
 
 #[cfg(test)]
 mod tests {
-    use serde_test::{assert_de_tokens, Token, assert_de_tokens_error};
+    use serde_test::{assert_de_tokens, assert_de_tokens_error, Token};
 
     use vec1::vec1;
 
@@ -178,7 +180,7 @@ mod tests {
             &expected_val,
             &[
                 Token::Seq { len: Some(3) },
-                
+
                 Token::Seq { len: Some(1) },
                 Token::BorrowedStr("connected"),
                 Token::SeqEnd,
@@ -202,43 +204,39 @@ mod tests {
 
     #[test]
     fn can_deserialize_status_info_event() {
-        // Response:        [["statusInfo", {"count": 45148, "antinudeservers": 
-        //                  ["waw3.omegle.com", "waw1.omegle.com", "waw4.omegle.com", 
-        //                  "waw2.omegle.com"], "spyQueueTime": 80.12030000686646, 
-        //                  "rtmfp": "rtmfp://p2p.rtmfp.net", "antinudepercent": 1.0, 
-        //                  "spyeeQueueTime": 229.33259999752045, "timestamp": 1685331229.225212, 
-        //                  "servers": ["front26", "front20", "front2", "front1", 
-        //                  "front45", "front39", "front28", "front15", "front46", 
+        // Response:        [["statusInfo", {"count": 45148, "antinudeservers":
+        //                  ["waw3.omegle.com", "waw1.omegle.com", "waw4.omegle.com",
+        //                  "waw2.omegle.com"], "spyQueueTime": 80.12030000686646,
+        //                  "rtmfp": "rtmfp://p2p.rtmfp.net", "antinudepercent": 1.0,
+        //                  "spyeeQueueTime": 229.33259999752045, "timestamp": 1685331229.225212,
+        //                  "servers": ["front26", "front20", "front2", "front1",
+        //                  "front45", "front39", "front28", "front15", "front46",
         //                  "front48", "front40", "front47", "front23", "front27"]}]]
-        let expected_val = vec1![
-           ChatEvent::StatusInfo(
-            OmegleStatusUpdate { 
-                count:45148, 
-                servers: vec1![ 
-                    Server { id_number: 26},
-                    Server { id_number: 20},
-                    Server { id_number: 2},
-                    Server { id_number: 1},
-                    Server { id_number: 45},
-                    Server { id_number: 39},
-                    Server { id_number: 28},
-                    Server { id_number: 15},
-                    Server { id_number: 46},
-                    Server { id_number: 48},
-                    Server { id_number: 40},
-                    Server { id_number: 47},
-                    Server { id_number: 23},
-                    Server { id_number: 27},
-                ]})
-        ];
+        let expected_val = vec1![ChatEvent::StatusInfo(OmegleStatusUpdate {
+            count: 45148,
+            servers: vec1![
+                Server { id_number: 26 },
+                Server { id_number: 20 },
+                Server { id_number: 2 },
+                Server { id_number: 1 },
+                Server { id_number: 45 },
+                Server { id_number: 39 },
+                Server { id_number: 28 },
+                Server { id_number: 15 },
+                Server { id_number: 46 },
+                Server { id_number: 48 },
+                Server { id_number: 40 },
+                Server { id_number: 47 },
+                Server { id_number: 23 },
+                Server { id_number: 27 },
+            ]
+        })];
         assert_de_tokens(
             &expected_val,
             &[
                 Token::Seq { len: Some(1) },
-                
                 Token::Seq { len: Some(2) },
                 Token::BorrowedStr("statusInfo"),
-
                 Token::Map { len: Some(8) },
                 Token::BorrowedStr("count"),
                 Token::I64(45148),
@@ -278,7 +276,6 @@ mod tests {
                 Token::SeqEnd,
                 Token::MapEnd,
                 Token::SeqEnd,
-
                 Token::SeqEnd,
             ],
         )
@@ -286,8 +283,8 @@ mod tests {
 
     #[test]
     fn can_not_deserialize_with_one_invalid_event() {
-        // Response:     "[["connected"], ["commonLikes"], 
-        //                [\"identDigests\", 
+        // Response:     "[["connected"], ["commonLikes"],
+        //                [\"identDigests\",
         //                "33eddfe1387518a2233a77cbbfce6a58,
         //                f816c928bf6598357d20977bfffe2052,
         //                9e533b0b6f3397b194c193e717703ed3
@@ -296,15 +293,12 @@ mod tests {
         assert_de_tokens_error::<Vec1<ChatEvent>>(
             &[
                 Token::Seq { len: Some(3) },
-                
                 Token::Seq { len: Some(1) },
                 Token::BorrowedStr("connected"),
                 Token::SeqEnd,
-
                 Token::Seq { len: Some(2) },
                 Token::BorrowedStr("commonLikes"),
                 Token::SeqEnd,
-                
                 // The rest are irrelevant but still want them here for completness/reference
                 // Token::Seq { len: Some(2) },
                 // Token::BorrowedStr("identDigests"),
@@ -312,45 +306,42 @@ mod tests {
                 // Token::SeqEnd,
 
                 // Token::SeqEnd,
-            ], 
-            "expected commonLikes to be followed by a non-empty list of strings"
+            ],
+            "expected commonLikes to be followed by a non-empty list of strings",
         )
-        
     }
 
     #[test]
     fn can_not_deserialize_empty_events() {
         // Response "[[]]";
-    
+
         assert_de_tokens_error::<Vec1<ChatEvent>>(
             &[
                 Token::Seq { len: Some(1) },
-                
                 Token::Seq { len: Some(0) },
                 Token::SeqEnd,
-
                 // The rest are irrelevant but still want them here for completness/reference
                 // Token::SeqEnd,
-            ], 
-            "Empty event array"
+            ],
+            "Empty event array",
         )
     }
 
     #[test]
     fn can_not_deserialize_unexpected_event() {
         // Response: "[["test"]]";
-        
+
         assert_de_tokens_error::<Vec1<ChatEvent>>(
             &[
                 Token::Seq { len: Some(1) },
-                
+
                 Token::Seq { len: Some(1) },
                 Token::BorrowedStr("test"),
                 Token::SeqEnd,
 
                 // The rest are irrelevant but still want them here for completness/reference
                 // Token::SeqEnd,
-            ], 
+            ],
             "unknown variant `test`, expected one of `waiting`, `connected`, `statusInfo`, `count`, `commonLikes`, `serverMessage`, `identDigests`, `error`, `connectionDied`, `antinudeBanned`, `typing`, `stoppedTyping`, `gotMessage`, `strangerDisconnected`"
         )
     }
