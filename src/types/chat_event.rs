@@ -6,14 +6,14 @@ use serde::{
 };
 use vec1::Vec1;
 
-use crate::status::{OmegleStatus, OmegleStatusUpdate};
+use crate::status::OmegleStatus;
 
 #[derive(Debug, PartialEq)]
 pub enum ChatEvent {
     // Status Events
     Waiting,
     Connected,
-    StatusInfo(OmegleStatusUpdate),
+    StatusInfo(OmegleStatus),
     Count(u64),
 
     // Notifications
@@ -64,11 +64,9 @@ impl<'de> Visitor<'de> for ChatEventVisitor {
             "waiting" => ChatEvent::Waiting,
             "connected" => ChatEvent::Connected,
             "statusInfo" => {
-                let status = seq
-                    .next_element::<OmegleStatusUpdate>()?
-                    .ok_or(Error::custom(
-                        "expected status info to be followed by status object",
-                    ))?;
+                let status = seq.next_element::<OmegleStatus>()?.ok_or(Error::custom(
+                    "expected status info to be followed by status object",
+                ))?;
                 ChatEvent::StatusInfo(status)
             }
             "count" => {
@@ -143,6 +141,7 @@ mod tests {
 
     use vec1::vec1;
 
+    use crate::status::OmegleStatus;
     use crate::types::server::Server;
 
     use super::*;
@@ -212,7 +211,7 @@ mod tests {
         //                  "servers": ["front26", "front20", "front2", "front1",
         //                  "front45", "front39", "front28", "front15", "front46",
         //                  "front48", "front40", "front47", "front23", "front27"]}]]
-        let expected_val = vec1![ChatEvent::StatusInfo(OmegleStatusUpdate {
+        let expected_val = vec1![ChatEvent::StatusInfo(OmegleStatus {
             count: 45148,
             servers: vec1![
                 Server { id_number: 26 },

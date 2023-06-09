@@ -1,26 +1,12 @@
 use crate::types::error::OmegleLibError;
-use crate::types::rand_id::RandID;
 use crate::types::server::Server;
 use serde::Deserialize;
 use vec1::Vec1;
 
 #[derive(Deserialize, Debug, PartialEq)]
 pub struct OmegleStatus {
-    count: u64,
-    servers: Vec1<Server>,
-    #[serde(skip)]
-    #[serde(default = "new_randid")]
-    rand_id: RandID,
-}
-
-#[derive(Deserialize, Debug, PartialEq)]
-pub struct OmegleStatusUpdate {
     pub(crate) count: u64,
     pub(crate) servers: Vec1<Server>,
-}
-
-fn new_randid() -> RandID {
-    RandID::new()
 }
 
 impl OmegleStatus {
@@ -30,10 +16,6 @@ impl OmegleStatus {
 
     pub fn get_server(&self) -> String {
         self.servers.first().into()
-    }
-
-    fn get_rand_id(&self) -> &RandID {
-        &self.rand_id
     }
 
     /// Send request to omegle to fetch the current status of the server.   
@@ -72,51 +54,86 @@ impl OmegleStatus {
 mod tests {
     use super::*;
 
+    use serde_test::{assert_de_tokens, assert_de_tokens_error, Token};
+
+    use vec1::{vec1, Vec1};
+
     #[test]
     fn valid_response_text_should_give_status() {
-        let resp_text = r#"{
-        "count": 34658,
-        "antinudeservers": [
-        "waw2.omegle.com",
-        "waw4.omegle.com",
-        "waw1.omegle.com",
-        "waw3.omegle.com"
-        ],
-        "spyQueueTime": 105.28910002708434,
-        "rtmfp": "rtmfp://p2p.rtmfp.net",
-        "antinudepercent": 1,
-        "spyeeQueueTime": 255.67500002384185,
-        "timestamp": 1675392220.026273,
-        "servers": ["front20", "front5"]}"#;
-        let resp = serde_json::from_str::<OmegleStatus>(&resp_text);
-
-        assert!(resp.is_ok())
+        let expected_val = OmegleStatus {
+            count: 34658,
+            servers: vec1![Server { id_number: 20 }, Server { id_number: 5 }],
+        };
+        assert_de_tokens(
+            &expected_val,
+            &[
+                Token::Map { len: Some(8) },
+                Token::BorrowedStr("count"),
+                Token::I64(34658),
+                Token::BorrowedStr("antinudeservers"),
+                Token::Seq { len: Some(4) },
+                Token::BorrowedStr("waw2.omegle.com"),
+                Token::BorrowedStr("waw4.omegle.com"),
+                Token::BorrowedStr("waw1.omegle.com"),
+                Token::BorrowedStr("waw3.omegle.com"),
+                Token::SeqEnd,
+                Token::BorrowedStr("spyQueueTime"),
+                Token::F64(105.28910002708434),
+                Token::BorrowedStr("rtmfp"),
+                Token::BorrowedStr("rtmfp://p2p.rtmfp.net"),
+                Token::BorrowedStr("antinudepercent"),
+                Token::F32(1.0),
+                Token::BorrowedStr("spyeeQueueTime"),
+                Token::F64(229.33259999752045),
+                Token::BorrowedStr("timestamp"),
+                Token::F64(1685331229.225212),
+                Token::BorrowedStr("servers"),
+                Token::Seq { len: Some(2) },
+                Token::BorrowedStr("front20"),
+                Token::BorrowedStr("front5"),
+                Token::SeqEnd,
+                Token::MapEnd,
+            ],
+        )
     }
 
     #[test]
     fn no_servers_given_should_error() {
-        let resp_text = r#"{
-        "count": 34658,
-        "antinudeservers": [
-        "waw2.omegle.com",
-        "waw4.omegle.com",
-        "waw1.omegle.com",
-        "waw3.omegle.com"
-        ],
-        "spyQueueTime": 105.28910002708434,
-        "rtmfp": "rtmfp://p2p.rtmfp.net",
-        "antinudepercent": 1,
-        "spyeeQueueTime": 255.67500002384185,
-        "timestamp": 1675392220.026273,
-        "servers": []}"#;
-        let resp = serde_json::from_str::<OmegleStatus>(&resp_text);
-        assert!(resp.is_err())
+        assert_de_tokens_error::<OmegleStatus>(
+            &[
+                Token::Map { len: Some(8) },
+                Token::BorrowedStr("count"),
+                Token::I64(34658),
+                Token::BorrowedStr("antinudeservers"),
+                Token::Seq { len: Some(4) },
+                Token::BorrowedStr("waw2.omegle.com"),
+                Token::BorrowedStr("waw4.omegle.com"),
+                Token::BorrowedStr("waw1.omegle.com"),
+                Token::BorrowedStr("waw3.omegle.com"),
+                Token::SeqEnd,
+                Token::BorrowedStr("spyQueueTime"),
+                Token::F64(105.28910002708434),
+                Token::BorrowedStr("rtmfp"),
+                Token::BorrowedStr("rtmfp://p2p.rtmfp.net"),
+                Token::BorrowedStr("antinudepercent"),
+                Token::F32(1.0),
+                Token::BorrowedStr("spyeeQueueTime"),
+                Token::F64(229.33259999752045),
+                Token::BorrowedStr("timestamp"),
+                Token::F64(1685331229.225212),
+                Token::BorrowedStr("servers"),
+                Token::Seq { len: Some(0) },
+                Token::SeqEnd,
+            ],
+            "Cannot produce a Vec1 with a length of zero.",
+        )
     }
 
     #[test]
     fn invalid_response_text_should_error() {
-        let resp_text = "bad request";
-        let resp = serde_json::from_str::<OmegleStatus>(&resp_text);
-        assert!(resp.is_err())
+        assert_de_tokens_error::<OmegleStatus>(
+            &[Token::BorrowedStr("bad request")],
+            "invalid type: string \"bad request\", expected struct OmegleStatus",
+        )
     }
 }
