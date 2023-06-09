@@ -56,7 +56,7 @@ mod tests {
 
     use serde_test::{assert_de_tokens, assert_de_tokens_error, Token};
 
-    use vec1::{vec1, Vec1};
+    use vec1::vec1;
 
     #[test]
     fn valid_response_text_should_give_status() {
