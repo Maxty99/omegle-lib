@@ -54,29 +54,6 @@ impl TryFrom<String> for RandID {
     }
 }
 
-impl TryFrom<&String> for RandID {
-    type Error = OmegleLibError;
-    /// Tries to create a new [`RandID`]
-    /// # Errors:
-    /// Returns [Err] if it doesnt follow the convention
-    fn try_from(value: &String) -> Result<Self, Self::Error> {
-        if value.len() == 8
-            && value
-                .chars()
-                .all(|char| (char != '1' && char != '0' && char != 'I' && char != 'O'))
-        {
-            let mut id: [char; 8] = Default::default();
-            for element in value.char_indices() {
-                let (idx, chr) = element;
-                id[idx] = chr;
-            }
-            Ok(Self { id })
-        } else {
-            Err(OmegleLibError::InvalidID)
-        }
-    }
-}
-
 impl TryFrom<&str> for RandID {
     type Error = OmegleLibError;
     /// Tries to create a new [`RandID`]
@@ -114,26 +91,12 @@ impl From<RandID> for String {
     }
 }
 
-impl From<&RandID> for String {
-    /// Performs the conversion of [`RandID`] into a [String].
-    /// Optimized to allocate all 8 bytes right away.
-    fn from(val: &RandID) -> Self {
-        //Avoid allocations
-        let mut string = String::with_capacity(8);
-
-        for elem in val.id {
-            string.push(elem);
-        }
-        string
-    }
-}
-
 impl Serialize for RandID {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        let randid_string: String = self.into();
+        let randid_string: String = (*self).into();
         serializer.serialize_str(&randid_string)
     }
 }

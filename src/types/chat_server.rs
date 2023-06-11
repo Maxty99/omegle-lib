@@ -8,7 +8,7 @@ use serde::{
 /// Type to store omegle server (front1, front2,...). Taking
 /// advantage of the fact that they all follow the pattern of
 /// 'front' + number. It's essentially just a wrapper for [u8].
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct ChatServer {
     pub(crate) id_number: u8,
 }
@@ -25,18 +25,12 @@ impl From<ChatServer> for String {
     }
 }
 
-impl From<&ChatServer> for String {
-    fn from(val: &ChatServer) -> Self {
-        format!("front{}", val.id_number)
-    }
-}
-
 impl Serialize for ChatServer {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        let server_string: String = self.into();
+        let server_string: String = (*self).into();
         serializer.serialize_str(&server_string)
     }
 }

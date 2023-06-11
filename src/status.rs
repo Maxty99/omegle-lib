@@ -18,7 +18,8 @@ impl OmegleStatus {
     }
 
     pub fn get_chat_server(&self) -> String {
-        self.servers.first().into()
+        let chat_server = self.servers.first();
+        (*chat_server).into()
     }
 
     pub fn get_check_server(&self) -> String {

@@ -20,19 +20,10 @@ impl From<ServerType> for String {
     }
 }
 
-impl From<&ServerType> for String {
-    fn from(value: &ServerType) -> Self {
-        match value {
-            ServerType::Central => String::from("central"),
-            ServerType::Shard => String::from("shard"),
-        }
-    }
-}
-
 /// Type to store client id, takes advantage of the fact
 /// that the id is a string that follows the pattern of
 /// 'central' + [u8] + ':' + [char; 30]
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct ClientID {
     pub(crate) server_type: ServerType,
     pub(crate) server_id: u8,
@@ -52,25 +43,12 @@ impl From<ClientID> for String {
     }
 }
 
-impl From<&ClientID> for String {
-    fn from(val: &ClientID) -> Self {
-        //Avoid allocations
-        let mut user_id_string = String::with_capacity(30);
-        let server_type_string = String::from(val.server_type);
-        for elem in val.user_id {
-            user_id_string.push(elem);
-        }
-
-        format!("{}{}:{}", server_type_string, val.server_id, user_id_string)
-    }
-}
-
 impl Serialize for ClientID {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        let client_id_string: String = self.into();
+        let client_id_string: String = (*self).into();
         serializer.serialize_str(&client_id_string)
     }
 }
