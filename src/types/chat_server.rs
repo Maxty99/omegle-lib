@@ -9,29 +9,29 @@ use serde::{
 /// advantage of the fact that they all follow the pattern of
 /// 'front' + number. It's essentially just a wrapper for [u8].
 #[derive(Debug, PartialEq)]
-pub struct Server {
+pub struct ChatServer {
     pub(crate) id_number: u8,
 }
 
-impl From<u8> for Server {
+impl From<u8> for ChatServer {
     fn from(value: u8) -> Self {
         Self { id_number: value }
     }
 }
 
-impl From<Server> for String {
-    fn from(val: Server) -> Self {
+impl From<ChatServer> for String {
+    fn from(val: ChatServer) -> Self {
         format!("front{}", val.id_number)
     }
 }
 
-impl From<&Server> for String {
-    fn from(val: &Server) -> Self {
+impl From<&ChatServer> for String {
+    fn from(val: &ChatServer) -> Self {
         format!("front{}", val.id_number)
     }
 }
 
-impl Serialize for Server {
+impl Serialize for ChatServer {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -41,19 +41,19 @@ impl Serialize for Server {
     }
 }
 
-impl<'de> Deserialize<'de> for Server {
+impl<'de> Deserialize<'de> for ChatServer {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_str(ServerVisitor)
+        deserializer.deserialize_str(ChatServerVisitor)
     }
 }
 
-struct ServerVisitor;
+struct ChatServerVisitor;
 
-impl<'de> Visitor<'de> for ServerVisitor {
-    type Value = Server;
+impl<'de> Visitor<'de> for ChatServerVisitor {
+    type Value = ChatServer;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -61,7 +61,7 @@ impl<'de> Visitor<'de> for ServerVisitor {
             "A string with following the format: 'front' + `u8`"
         )
     }
-    fn visit_str<E>(self, str: &str) -> Result<Server, E>
+    fn visit_str<E>(self, str: &str) -> Result<ChatServer, E>
     where
         E: Error,
     {
@@ -73,7 +73,7 @@ impl<'de> Visitor<'de> for ServerVisitor {
                         "expected server string that starts with 'front' to be followed by a u8",
                     )
                 })?;
-                Ok(Server { id_number })
+                Ok(ChatServer { id_number })
             } else {
                 Err(E::custom("expected server string that starts with 'front' to be followed by at least one char"))
             }
@@ -91,13 +91,13 @@ mod tests {
 
     #[test]
     fn can_deserialize_and_serialize_valid_string() {
-        let server = Server { id_number: 15 };
+        let server = ChatServer { id_number: 15 };
         assert_tokens(&server, &[Token::Str("front15")])
     }
 
     #[test]
     fn can_not_deserialize_string_with_invalid_start() {
-        assert_de_tokens_error::<Server>(
+        assert_de_tokens_error::<ChatServer>(
             &[Token::Str("fromt15")],
             "expected server string to start with 'front'",
         )
@@ -105,7 +105,7 @@ mod tests {
 
     #[test]
     fn can_not_deserialize_string_with_no_id() {
-        assert_de_tokens_error::<Server>(
+        assert_de_tokens_error::<ChatServer>(
             &[Token::Str("front")],
             "expected server string that starts with 'front' to be followed by at least one char",
         )
@@ -113,7 +113,7 @@ mod tests {
 
     #[test]
     fn can_not_deserialize_string_with_invalid_id() {
-        assert_de_tokens_error::<Server>(
+        assert_de_tokens_error::<ChatServer>(
             &[Token::Str("front155555")],
             "expected server string that starts with 'front' to be followed by a u8",
         )

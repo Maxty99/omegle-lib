@@ -142,7 +142,8 @@ mod tests {
     use vec1::vec1;
 
     use crate::status::OmegleStatus;
-    use crate::types::server::Server;
+    use crate::types::chat_server::ChatServer;
+    use crate::types::check_server::CheckServer;
 
     use super::*;
 
@@ -214,20 +215,26 @@ mod tests {
         let expected_val = vec1![ChatEvent::StatusInfo(OmegleStatus {
             count: 45148,
             servers: vec1![
-                Server { id_number: 26 },
-                Server { id_number: 20 },
-                Server { id_number: 2 },
-                Server { id_number: 1 },
-                Server { id_number: 45 },
-                Server { id_number: 39 },
-                Server { id_number: 28 },
-                Server { id_number: 15 },
-                Server { id_number: 46 },
-                Server { id_number: 48 },
-                Server { id_number: 40 },
-                Server { id_number: 47 },
-                Server { id_number: 23 },
-                Server { id_number: 27 },
+                ChatServer { id_number: 26 },
+                ChatServer { id_number: 20 },
+                ChatServer { id_number: 2 },
+                ChatServer { id_number: 1 },
+                ChatServer { id_number: 45 },
+                ChatServer { id_number: 39 },
+                ChatServer { id_number: 28 },
+                ChatServer { id_number: 15 },
+                ChatServer { id_number: 46 },
+                ChatServer { id_number: 48 },
+                ChatServer { id_number: 40 },
+                ChatServer { id_number: 47 },
+                ChatServer { id_number: 23 },
+                ChatServer { id_number: 27 },
+            ],
+            antinudeservers: vec1![
+                CheckServer(3),
+                CheckServer(1),
+                CheckServer(4),
+                CheckServer(2)
             ]
         })];
         assert_de_tokens(

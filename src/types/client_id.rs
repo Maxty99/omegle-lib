@@ -4,7 +4,7 @@ use serde::{
     de::{Error, Visitor},
     Deserialize, Deserializer, Serialize, Serializer,
 };
-
+//TODO: Add Spike
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum ServerType {
     Central,

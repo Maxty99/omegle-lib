@@ -3,7 +3,7 @@ use std::{
     task::{Context, Poll},
 };
 
-use crate::status::OmegleStatus;
+use crate::types::client_id::{self, ClientID};
 use crate::types::{chat_event::ChatEvent, error::OmegleLibError};
 use futures::{Future, Stream};
 use reqwest::Client;
@@ -12,16 +12,16 @@ use vec1::Vec1;
 // TODO: Figure out how to reuse this effectively
 pub struct ChatSession<'a> {
     is_connected: bool,
-    client: Client,
-    status: &'a OmegleStatus,
+    client_id: ClientID,
+    client: &'a Client,
 }
 
 impl<'a> ChatSession<'a> {
-    fn new(status: &'a OmegleStatus) -> Self {
+    pub(crate) fn new(client: &'a Client, client_id: ClientID) -> Self {
         Self {
             is_connected: false,
-            client: Client::new(),
-            status,
+            client_id,
+            client,
         }
     }
 }
@@ -31,9 +31,6 @@ impl ChatSession<'_> {
         self.is_connected
     }
 
-    pub async fn new_chat(&self) {
-        todo!()
-    }
     pub async fn send_message(&self) -> Result<(), OmegleLibError> {
         todo!()
     }

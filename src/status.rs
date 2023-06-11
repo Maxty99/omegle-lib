@@ -1,12 +1,15 @@
+use crate::types::chat_server::ChatServer;
+use crate::types::check_server::CheckServer;
 use crate::types::error::OmegleLibError;
-use crate::types::server::Server;
 use serde::Deserialize;
 use vec1::Vec1;
 
+//TODO: Add omegle antinude Check
 #[derive(Deserialize, Debug, PartialEq)]
 pub struct OmegleStatus {
     pub(crate) count: u64,
-    pub(crate) servers: Vec1<Server>,
+    pub(crate) servers: Vec1<ChatServer>,
+    pub(crate) antinudeservers: Vec1<CheckServer>,
 }
 
 impl OmegleStatus {
@@ -14,10 +17,14 @@ impl OmegleStatus {
         self.count
     }
 
-    pub fn get_server(&self) -> String {
+    pub fn get_chat_server(&self) -> String {
         self.servers.first().into()
     }
 
+    pub fn get_check_server(&self) -> String {
+        let check_server = self.antinudeservers.first();
+        (*check_server).into()
+    }
     /// Send request to omegle to fetch the current status of the server.   
     /// This is needed before doing anything else
     ///
@@ -62,7 +69,13 @@ mod tests {
     fn valid_response_text_should_give_status() {
         let expected_val = OmegleStatus {
             count: 34658,
-            servers: vec1![Server { id_number: 20 }, Server { id_number: 5 }],
+            servers: vec1![ChatServer { id_number: 20 }, ChatServer { id_number: 5 }],
+            antinudeservers: vec1![
+                CheckServer(2),
+                CheckServer(4),
+                CheckServer(1),
+                CheckServer(3)
+            ],
         };
         assert_de_tokens(
             &expected_val,
