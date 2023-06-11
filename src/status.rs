@@ -17,14 +17,12 @@ impl OmegleStatus {
         self.count
     }
 
-    pub fn get_chat_server(&self) -> String {
-        let chat_server = self.servers.first();
-        (*chat_server).into()
+    pub fn get_chat_server(&self) -> ChatServer {
+        *self.servers.first()
     }
 
-    pub fn get_check_server(&self) -> String {
-        let check_server = self.antinudeservers.first();
-        (*check_server).into()
+    pub fn get_check_server(&self) -> CheckServer {
+        *self.antinudeservers.first()
     }
     /// Send request to omegle to fetch the current status of the server.   
     /// This is needed before doing anything else
@@ -44,7 +42,7 @@ impl OmegleStatus {
     /// - The omegle server cannot be reached
     /// - The response contained no text
     /// - The response was unexpected (Ex: Error on omegle's end)
-    pub async fn get_omegle_status() -> Result<OmegleStatus, reqwest::Error> {
+    pub async fn get_omegle_status() -> Result<OmegleStatus, OmegleLibError> {
         let req = reqwest::get("https://omegle.com/status").await?;
         let omegle_status = req.json::<OmegleStatus>().await?;
         Ok(omegle_status)
