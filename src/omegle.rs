@@ -1,11 +1,11 @@
 use crate::{
     chat_session::ChatSession,
     status::OmegleStatus,
-    types::{check_server, error::OmegleLibError, rand_id::RandID},
+    types::{client_id::ClientID, error::OmegleLibError, rand_id::RandID},
 };
-use futures::TryFutureExt;
+
 use reqwest::Client;
-use std::{marker::PhantomData, sync::OnceLock};
+use std::sync::OnceLock;
 
 static CLIENT: OnceLock<Client> = OnceLock::new();
 
@@ -24,7 +24,7 @@ impl<'om> Omegle<'om> {
         }
     }
 
-    async fn new_chat(&self) -> Result<ChatSession<'om>, OmegleLibError> {
+    async fn new_chat(&self) -> Result<ChatSession<'om>, reqwest::Error> {
         let server = self.status.get_chat_server();
         let rand_id = String::from(self.rand_id);
         let check_server = self.status.get_check_server();
@@ -32,18 +32,18 @@ impl<'om> Omegle<'om> {
             .client
             .post(format!("{check_server}/check"))
             .send()
-            .await
-            .map_err(|_| OmegleLibError::ConnectionError)?
+            .await?
             .text()
-            .await
-            .map_err(|_| OmegleLibError::ConnectionError)?;
+            .await?;
+
         let resp = self
             .client
             .post(format!("http://{server}.omegle.com/start?"))
             .send()
-            .await
-            .map_err(|_| OmegleLibError::ConnectionError)?;
+            .await?
+            .json::<ClientID>()
+            .await?;
 
-        todo!()
+        Ok(ChatSession::new(self.client, resp))
     }
 }

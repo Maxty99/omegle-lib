@@ -44,16 +44,9 @@ impl OmegleStatus {
     /// - The omegle server cannot be reached
     /// - The response contained no text
     /// - The response was unexpected (Ex: Error on omegle's end)
-    pub async fn get_omegle_status() -> Result<OmegleStatus, OmegleLibError> {
-        let req = reqwest::get("https://omegle.com/status")
-            .await
-            .map_err(|_| OmegleLibError::ConnectionError)?;
-        let resp = req
-            .text()
-            .await
-            .map_err(|_| OmegleLibError::CouldNotDetermineResponse)?;
-        let omegle_status: OmegleStatus =
-            serde_json::from_str(&resp).map_err(OmegleLibError::DeserializationError)?;
+    pub async fn get_omegle_status() -> Result<OmegleStatus, reqwest::Error> {
+        let req = reqwest::get("https://omegle.com/status").await?;
+        let omegle_status = req.json::<OmegleStatus>().await?;
         Ok(omegle_status)
     }
 }
