@@ -105,7 +105,7 @@ impl RandID {
     /// Creates a new [`RandID`] randomly using the convention
     pub fn new() -> Self {
         let mut id: [char; 8] = Default::default();
-        for element in (0..8 as usize).zip(
+        for element in (0..8_usize).zip(
             rand::thread_rng()
                 .sample_iter(OmegleCharset)
                 .take(8)

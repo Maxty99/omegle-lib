@@ -21,7 +21,7 @@ impl Omegle<'_> {
     pub fn new(status: OmegleStatus, topics: Vec<String>, lang: LangCode) -> Self {
         Self {
             rand_id: RandID::new(),
-            client: CLIENT.get_or_init(|| Client::new()),
+            client: CLIENT.get_or_init(Client::new),
             status,
             topics,
             lang,

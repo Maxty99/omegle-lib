@@ -1,12 +1,8 @@
-use std::{
-    collections::HashMap,
-    pin::{pin, Pin},
-    task::{Context, Poll},
-};
+use std::collections::HashMap;
 
 use crate::types::{chat_event::ChatEvent, error::OmegleLibError};
 use crate::types::{chat_server::ChatServer, client_id::ClientID};
-use futures::{Future, Stream};
+
 use reqwest::Client;
 use vec1::Vec1;
 
