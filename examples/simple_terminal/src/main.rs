@@ -23,9 +23,12 @@ async fn main() -> anyhow::Result<()> {
             match event {
                 ChatEvent::Waiting => println!("Waiting"),
                 ChatEvent::Connected => println!("Connected"),
-                ChatEvent::StartedTyping => println!("Typing \r"),
+                ChatEvent::StartedTyping => print!("Typing\r"),
                 ChatEvent::Message(msg) => println!("Got message: {msg}"),
-                ChatEvent::Disconnected => break 'mainloop,
+                ChatEvent::Disconnected => {
+                    println!("Disconnected");
+                    break 'mainloop;
+                }
                 _ => {}
             }
         }
