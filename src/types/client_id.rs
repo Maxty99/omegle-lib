@@ -9,6 +9,7 @@ use serde::{
 pub(crate) enum ServerType {
     Central,
     Shard,
+    Spike,
 }
 
 impl From<ServerType> for String {
@@ -16,6 +17,7 @@ impl From<ServerType> for String {
         match value {
             ServerType::Central => String::from("central"),
             ServerType::Shard => String::from("shard"),
+            ServerType::Spike => String::from("spike"),
         }
     }
 }
@@ -79,11 +81,7 @@ impl<'de> Visitor<'de> for ClientIDVisitor {
     {
         let length = str.len();
 
-        if !str.starts_with("central") && !str.starts_with("shard") {
-            Err(E::custom(
-                "expected client id string to start with 'central' or 'shard'",
-            ))
-        } else if length < 30 {
+        if length < 30 {
             Err(E::custom(
                 "expected client id string to be at least 30 chars",
             ))
@@ -91,13 +89,20 @@ impl<'de> Visitor<'de> for ClientIDVisitor {
             let (server_type, central_id_as_str) = if str.starts_with("central") {
                 (ServerType::Central, str.get(7..length - 31)
                         .ok_or(E::custom("expected client id string that starts with 'central' to have at least one char before ':' and the user id"))?)
-            } else {
+            } else if str.starts_with("shard") {
                 (ServerType::Shard, str.get(5..length - 31)
                     .ok_or(E::custom("expected client id string that starts with 'shard' to have at least one char before ':' and the user id"))?)
+            } else if str.starts_with("spike") {
+                (ServerType::Spike, str.get(5..length - 31)
+                    .ok_or(E::custom("expected client id string that starts with 'spike' to have at least one char before ':' and the user id"))?)
+            } else {
+                Err(E::custom(
+                    "expected client id string to start with 'central' or 'shard' or 'spike'",
+                ))?
             };
             let central_id: u8 = central_id_as_str.parse().map_err(|_| {
                 E::custom(
-                    "expected client id string to contain a valid u8 after 'central' or 'shard'",
+                    "expected client id string to contain a valid u8 after 'central' or 'shard' or 'spike'",
                 )
             })?;
             let user_id_as_str = str.get(length - 30..).ok_or(E::custom(
@@ -152,8 +157,8 @@ mod tests {
     #[test]
     fn can_not_deserialize_string_with_invalid_start() {
         assert_de_tokens_error::<ClientID>(
-            &[Token::Str("sard15")],
-            "expected client id string to start with 'central' or 'shard'",
+            &[Token::Str("sardd15:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")],
+            "expected client id string to start with 'central' or 'shard' or 'spike'",
         )
     }
 
@@ -169,7 +174,7 @@ mod tests {
     fn can_not_deserialize_central_string_with_no_id() {
         assert_de_tokens_error::<ClientID>(
             &[Token::Str("central:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")],
-            "expected client id string to contain a valid u8 after 'central' or 'shard'",
+            "expected client id string to contain a valid u8 after 'central' or 'shard' or 'spike'",
         )
     }
 
@@ -177,7 +182,7 @@ mod tests {
     fn can_not_deserialize_shard_string_with_no_id() {
         assert_de_tokens_error::<ClientID>(
             &[Token::Str("shard:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")],
-            "expected client id string to contain a valid u8 after 'central' or 'shard'",
+            "expected client id string to contain a valid u8 after 'central' or 'shard' or 'spike'",
         )
     }
 
@@ -185,7 +190,7 @@ mod tests {
     fn can_not_deserialize_string_with_invalid_id() {
         assert_de_tokens_error::<ClientID>(
             &[Token::Str("central155555:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")],
-            "expected client id string to contain a valid u8 after 'central' or 'shard'",
+            "expected client id string to contain a valid u8 after 'central' or 'shard' or 'spike'",
         )
     }
 }
