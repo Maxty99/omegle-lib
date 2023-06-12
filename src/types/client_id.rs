@@ -6,7 +6,7 @@ use serde::{
 };
 //TODO: Add Spike
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub enum ServerType {
+pub(crate) enum ServerType {
     Central,
     Shard,
 }
@@ -24,7 +24,7 @@ impl From<ServerType> for String {
 /// that the id is a string that follows the pattern of
 /// 'central' + [u8] + ':' + [char; 30]
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct ClientID {
+pub(crate) struct ClientID {
     pub(crate) server_type: ServerType,
     pub(crate) server_id: u8,
     pub(crate) user_id: [char; 30],

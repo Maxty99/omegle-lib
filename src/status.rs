@@ -4,7 +4,6 @@ use crate::types::error::OmegleLibError;
 use serde::Deserialize;
 use vec1::Vec1;
 
-//TODO: Add omegle antinude Check
 #[derive(Deserialize, Debug, PartialEq)]
 pub struct OmegleStatus {
     pub(crate) count: u64,
@@ -17,11 +16,11 @@ impl OmegleStatus {
         self.count
     }
 
-    pub fn get_chat_server(&self) -> ChatServer {
+    pub(crate) fn get_chat_server(&self) -> ChatServer {
         *self.servers.first()
     }
 
-    pub fn get_check_server(&self) -> CheckServer {
+    pub(crate) fn get_check_server(&self) -> CheckServer {
         *self.antinudeservers.first()
     }
     /// Send request to omegle to fetch the current status of the server.   

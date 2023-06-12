@@ -5,7 +5,7 @@ use serde::{
     Deserialize, Deserializer,
 };
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct CheckServer(pub(crate) u8);
+pub(crate) struct CheckServer(pub(crate) u8);
 
 impl From<CheckServer> for String {
     fn from(value: CheckServer) -> Self {

@@ -9,7 +9,7 @@ use serde::{
 /// advantage of the fact that they all follow the pattern of
 /// 'front' + number. It's essentially just a wrapper for [u8].
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct ChatServer {
+pub(crate) struct ChatServer {
     pub(crate) id_number: u8,
 }
 
