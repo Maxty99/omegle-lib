@@ -3,20 +3,20 @@ use vec1::Vec1;
 use crate::{status::OmegleStatus, types::chat_event::ChatEvent};
 
 pub trait EventHandler {
-    fn handle_waiting(&self);
-    fn handle_connected(&self);
-    fn handle_status_info_update(&self, info: OmegleStatus);
-    fn handle_count_update(&self, count: u64);
-    fn handle_common_likes(&self, likes: Vec1<String>);
-    fn handle_server_message(&self, msg: String);
-    fn handle_ident_digests(&self, digests: String);
-    fn handle_error(&self, err: String);
-    fn handle_connection_died(&self);
-    fn handle_banned(&self);
-    fn handle_started_typing(&self);
-    fn handle_stopped_typing(&self);
-    fn handle_message(&self, msg: String);
-    fn handle_disconnected(&self);
+    fn handle_waiting(&self) {}
+    fn handle_connected(&self) {}
+    fn handle_status_info_update(&self, info: OmegleStatus) {}
+    fn handle_count_update(&self, count: u64) {}
+    fn handle_common_likes(&self, likes: Vec1<String>) {}
+    fn handle_server_message(&self, msg: String) {}
+    fn handle_ident_digests(&self, digests: String) {}
+    fn handle_error(&self, err: String) {}
+    fn handle_connection_died(&self) {}
+    fn handle_banned(&self) {}
+    fn handle_started_typing(&self) {}
+    fn handle_stopped_typing(&self) {}
+    fn handle_message(&self, msg: String) {}
+    fn handle_disconnected(&self) {}
 
     fn handle_event(&self, evt: ChatEvent) {
         match evt {
