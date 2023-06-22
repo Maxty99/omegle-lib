@@ -1,5 +1,6 @@
 use crate::{
     chat_session::ChatSession,
+    event_handler::EventHandler,
     status::OmegleStatus,
     types::{client_id::ClientID, lang::LangCode, rand_id::RandID},
 };
@@ -9,15 +10,22 @@ use std::sync::OnceLock;
 
 static CLIENT: OnceLock<Client> = OnceLock::new();
 
-pub struct Omegle<'om> {
+pub struct Omegle<'om, T>
+where
+    T: EventHandler + Default,
+{
     rand_id: RandID,
     client: &'om Client,
     status: OmegleStatus,
     topics: Vec<String>,
     lang: LangCode,
+    event_handler: T,
 }
 
-impl Omegle<'_> {
+impl<T> Omegle<'_, T>
+where
+    T: EventHandler + Default,
+{
     pub fn new(status: OmegleStatus, topics: Vec<String>, lang: LangCode) -> Self {
         Self {
             rand_id: RandID::new(),
@@ -25,11 +33,15 @@ impl Omegle<'_> {
             status,
             topics,
             lang,
+            event_handler: T::default(),
         }
     }
 }
 
-impl<'om> Omegle<'om> {
+impl<'om, T> Omegle<'om, T>
+where
+    T: EventHandler + Default,
+{
     pub async fn new_chat(&self) -> Result<ChatSession<'om>, reqwest::Error> {
         let chat_server = self.status.get_chat_server();
         let chat_server_string = String::from(chat_server);
