@@ -12,7 +12,7 @@ static CLIENT: OnceLock<Client> = OnceLock::new();
 
 pub struct Omegle<'om, T>
 where
-    T: EventHandler + Default,
+    T: EventHandler,
 {
     rand_id: RandID,
     client: &'om Client,
@@ -34,6 +34,27 @@ where
             topics,
             lang,
             event_handler: T::default(),
+        }
+    }
+}
+
+impl<T> Omegle<'_, T>
+where
+    T: EventHandler,
+{
+    pub fn new_with_handler(
+        status: OmegleStatus,
+        topics: Vec<String>,
+        lang: LangCode,
+        event_handler: T,
+    ) -> Self {
+        Self {
+            rand_id: RandID::new(),
+            client: CLIENT.get_or_init(Client::new),
+            status,
+            topics,
+            lang,
+            event_handler: event_handler,
         }
     }
 }
