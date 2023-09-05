@@ -4,6 +4,6 @@ pub enum OmegleLibError {
     InvalidID,
     #[error(transparent)]
     ReqwestError(#[from] reqwest::Error),
-    #[error("omegle server responded with 'fail'")]
-    OmegleError,
+    #[error("omegle server responded with '{0}'")]
+    OmegleError(String),
 }

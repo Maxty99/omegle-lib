@@ -6,6 +6,8 @@ use crate::types::{chat_server::ChatServer, client_id::ClientID};
 use reqwest::Client;
 use vec1::Vec1;
 
+static OMEGLE_SUCCESS_RESP: &str = "win";
+
 // TODO: Figure out how to reuse this effectively
 #[derive(Debug, Clone, Copy)]
 pub struct ChatSession<'a> {
@@ -32,10 +34,10 @@ impl ChatSession<'_> {
             .text()
             .await?;
 
-        if resp == "win" {
+        if resp == OMEGLE_SUCCESS_RESP {
             Ok(())
         } else {
-            Err(OmegleLibError::OmegleError)
+            Err(OmegleLibError::OmegleError(resp))
         }
     }
     pub async fn start_typing(&self) -> Result<(), OmegleLibError> {
@@ -53,10 +55,10 @@ impl ChatSession<'_> {
             .text()
             .await?;
 
-        if resp == "win" {
+        if resp == OMEGLE_SUCCESS_RESP {
             Ok(())
         } else {
-            Err(OmegleLibError::OmegleError)
+            Err(OmegleLibError::OmegleError(resp))
         }
     }
     pub async fn stop_typing(&self) -> Result<(), OmegleLibError> {
@@ -76,10 +78,10 @@ impl ChatSession<'_> {
             .text()
             .await?;
 
-        if resp == "win" {
+        if resp == OMEGLE_SUCCESS_RESP {
             Ok(())
         } else {
-            Err(OmegleLibError::OmegleError)
+            Err(OmegleLibError::OmegleError(resp))
         }
     }
     pub async fn get_events(&self) -> Result<Vec1<ChatEvent>, OmegleLibError> {
@@ -114,10 +116,10 @@ impl ChatSession<'_> {
             .text()
             .await?;
 
-        if resp == "win" {
+        if resp == OMEGLE_SUCCESS_RESP {
             Ok(())
         } else {
-            Err(OmegleLibError::OmegleError)
+            Err(OmegleLibError::OmegleError(resp))
         }
     }
 }
