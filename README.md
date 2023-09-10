@@ -19,7 +19,7 @@ often, so use this crate with that in mind
 
 # How to use
 
-Check out the example for some basic usage or chack out my
+Check out the example for some basic usage or check out my
 [Icymegle](https://github.com/Maxty99/Icymegle) client for a more advanced
 implementation.
 
