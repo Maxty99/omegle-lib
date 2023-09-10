@@ -2,6 +2,7 @@
 name = "omegle-rs"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 authors = ["Maxim Tyuterev <maxtyuterev@gmail.com>"]
 description = "Library for interfacing with the chat service Omegle"
 readme = "README.md"
