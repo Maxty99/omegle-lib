@@ -4,6 +4,8 @@ _A crate for interfacing with Omegle_
 
 ---
 
+![Build](https://github.com/maxty99/omegle-lib/actions/workflows/test.yml/badge.svg)
+
 I wrote this crate for my [Icymegle](https://github.com/Maxty99/Icymegle)
 project since there wasn't really any other library that was being actively
 maintained. This crate might also get out of date eventually when Omegle updates
