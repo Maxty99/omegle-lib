@@ -5,6 +5,7 @@ _A crate for interfacing with Omegle_
 ---
 
 ![Tests](https://github.com/maxty99/omegle-lib/actions/workflows/test.yml/badge.svg)
+[![codecov](https://codecov.io/gh/Maxty99/omegle-lib/graph/badge.svg?token=XRUK3SZVVK)](https://codecov.io/gh/Maxty99/omegle-lib)
 
 I wrote this crate for my [Icymegle](https://github.com/Maxty99/Icymegle)
 project since there wasn't really any other library that was being actively
