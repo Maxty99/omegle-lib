@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use anyhow::{Context, Ok};
 use omegle_rs::{
     omegle::Omegle, status::OmegleStatus, types::chat_event::ChatEvent, types::lang::LangCode,
@@ -9,7 +11,7 @@ async fn main() -> anyhow::Result<()> {
         .await
         .context("Could not get omegle status")?;
 
-    let omegle = Omegle::new(status, vec![], LangCode::English);
+    let omegle = Omegle::new(status, HashSet::new(), LangCode::English);
     let session = omegle
         .new_chat()
         .await

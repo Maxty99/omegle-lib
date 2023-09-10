@@ -34,9 +34,9 @@ pub struct RandID {
 impl TryFrom<String> for RandID {
     type Error = OmegleLibError;
     /// Tries to create a new [`RandID`]
-    /// # Errors:
+    /// # Errors
     /// Returns [Err] if it doesnt follow the convention
-    fn try_from(value: String) -> Result<Self, Self::Error> {
+    fn try_from(value: String) -> Result<Self, OmegleLibError> {
         if value.len() == 8
             && value
                 .chars()
@@ -57,7 +57,7 @@ impl TryFrom<String> for RandID {
 impl TryFrom<&str> for RandID {
     type Error = OmegleLibError;
     /// Tries to create a new [`RandID`]
-    /// # Errors:
+    /// # Errors
     /// Returns [Err] if it doesnt follow the convention
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         if value.len() == 8

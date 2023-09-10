@@ -4,6 +4,8 @@ use serde::{
     de::{Error, Visitor},
     Deserialize, Deserializer,
 };
+
+/// Struct representing the Omegle verification servers
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub(crate) struct CheckServer(pub(crate) u8);
 

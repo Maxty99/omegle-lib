@@ -4,7 +4,8 @@ use serde::{
     de::{Error, Visitor},
     Deserialize, Deserializer, Serialize, Serializer,
 };
-//TODO: Add Spike
+
+/// Enum describing every possible type of server
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub(crate) enum ServerType {
     Central,

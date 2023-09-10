@@ -8,6 +8,7 @@ use vec1::Vec1;
 
 use crate::status::OmegleStatus;
 
+/// Enum representing every possible chat event you can receive from the server
 #[derive(Debug, PartialEq)]
 pub enum ChatEvent {
     // Status Events

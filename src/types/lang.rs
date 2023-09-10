@@ -1,7 +1,6 @@
-// You need to bring the ToString trait into scope to use it
 use strum::Display;
 
-// TODO: Expand later
+/// Enum for working with omegle language codes in Rust
 #[derive(Display, Debug)]
 pub enum LangCode {
     #[strum(serialize = "en")]

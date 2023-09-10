@@ -4,6 +4,12 @@ use crate::types::error::OmegleLibError;
 use serde::Deserialize;
 use vec1::Vec1;
 
+/// Type describing the status of the Omegle servers
+///
+/// Used for building [`Omegle`](crate::omegle::Omegle) since it contains the info
+/// needed to initiate a new chat
+///
+/// Can be aquired and used when necessary
 #[derive(Deserialize, Debug, PartialEq)]
 pub struct OmegleStatus {
     pub(crate) count: u64,
@@ -12,14 +18,17 @@ pub struct OmegleStatus {
 }
 
 impl OmegleStatus {
+    /// Get's the count of people who are currently online
     pub fn get_count(&self) -> u64 {
         self.count
     }
 
+    /// Get's a chat server from the status data
     pub(crate) fn get_chat_server(&self) -> ChatServer {
         *self.servers.first()
     }
 
+    /// Get's a verification server from the status data
     pub(crate) fn get_check_server(&self) -> CheckServer {
         *self.antinudeservers.first()
     }
@@ -36,11 +45,11 @@ impl OmegleStatus {
     /// }
     ///```
     ///
-    /// # Errors:
+    /// # Errors
     /// This function fails if:
     /// - The omegle server cannot be reached
     /// - The response contained no text
-    /// - The response was unexpected (Ex: Error on omegle's end)
+    /// - The response was unexpected (Ex: Error on omegle's end or response was malformed)
     pub async fn get_omegle_status() -> Result<OmegleStatus, OmegleLibError> {
         let req = reqwest::get("https://omegle.com/status").await?;
         let omegle_status = req.json::<OmegleStatus>().await?;
