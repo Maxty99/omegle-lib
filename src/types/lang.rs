@@ -1,7 +1,7 @@
 use strum::Display;
 
 /// Enum for working with omegle language codes in Rust
-#[derive(Display, Debug)]
+#[derive(Display, Debug, Clone, Copy)]
 pub enum LangCode {
     #[strum(serialize = "en")]
     English,

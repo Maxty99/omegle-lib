@@ -24,6 +24,11 @@ impl Omegle {
         self.lang = new_lang
     }
 
+    /// Gets the currently selected langauge
+    pub fn get_current_lang(&self) -> LangCode {
+        return self.lang;
+    }
+
     /// Add a new interest
     ///
     /// If the interest was already added returns false, otherwise returns true
@@ -38,6 +43,16 @@ impl Omegle {
     pub fn remove_interest<M: ToString>(&mut self, interest_to_remove: M) -> bool {
         let interest_to_remove_string = interest_to_remove.to_string();
         self.topics.remove(&interest_to_remove_string)
+    }
+
+    /// Gets a vec of refrences to the current interests
+    pub fn get_current_interests(&self) -> Vec<&String> {
+        self.topics.iter().collect_vec()
+    }
+
+    /// Gets an interator over currently selected topics
+    pub fn get_current_interests_iter(&self) -> std::collections::hash_set::Iter<'_, String> {
+        self.topics.iter()
     }
 
     /// Creates a new instance of [`Omegle`] given some topics and the desired [`LangCode`]
